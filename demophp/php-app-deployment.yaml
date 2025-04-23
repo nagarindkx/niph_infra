@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: php-app-deployment
+  labels:
+    app: php-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: php-app
+  template:
+    metadata:
+      labels:
+        app: php-app
+    spec:
+      initContainers:
+        - name: git-clone
+          image: alpine/git
+          args:
+            - "clone"
+            - "--depth"
+            - "1"
+            - "https://github.com/nagarindkx/samplephp"
+            - "/app"
+          volumeMounts:
+            - name: app-volume
+              mountPath: /app
+      containers:
+        - name: php-fpm-container
+          image: php:8.2-fpm-alpine
+          ports:
+            - containerPort: 9000
+          volumeMounts:
+            - name: app-volume
+              mountPath: /var/www/html
+        - name: nginx-container
+          image: nginx:stable-alpine
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: app-volume
+              mountPath: /var/www/html
+            - name: nginx-config-volume # Mount the ConfigMap as a volume
+              mountPath: /etc/nginx/conf.d
+          readinessProbe:
+            httpGet:
+              path: /index.php
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: app-volume
+          emptyDir: {}
+        - name: nginx-config-volume # Define the volume for the ConfigMap
+          configMap:
+            name: nginx-config

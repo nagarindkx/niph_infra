@@ -1,0 +1,30 @@
+auth:
+  rootPassword: 382096a3207028829496cb77202a76d1e76549e0
+  username: niph
+  password: a0b310084c8ab413ace944be94008be5a0704d18
+  database: mydb
+
+persistence:
+  enabled: true
+  storageClass: longhorn
+  size: 10Gi # Adjust the size as needed
+
+resources: {}
+  # limits:
+  #   cpu: 500m
+  #   memory: 1Gi
+  # requests:
+  #   cpu: 100m
+  #   memory: 256Mi
+
+service:
+  type: ClusterIP # Or LoadBalancer if you need external access (not recommended for direct DB access in production)
+  port: 3306
+
+metrics:
+  enabled: false # Consider enabling for monitoring in production
+
+replication:
+  enabled: false # Configure if you need replication
+
+# More advanced configurations can be added here as needed
